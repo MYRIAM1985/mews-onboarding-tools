@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kit Formation Mews — Générateur</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  :root {
+    --bg:#0e0e12;--surface:#16161c;--surface2:#1e1e28;--border:#2a2a38;
+    --text:#e8e8f0;--muted:#7a7a90;--green:#22c55e;--green-bg:rgba(34,197,94,0.08);
+    --orange:#f97316;--accent:#a78bfa;--accent-bg:rgba(167,139,250,0.10);
+    --radius:12px;--radius-sm:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh;padding-bottom:80px}
+  .header{background:var(--surface);border-bottom:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .header-left{display:flex;align-items:center;gap:14px}
+  .header-icon{width:40px;height:40px;background:linear-gradient(135deg,#FF83DA,#a78bfa);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+  .header-title{font-size:17px;font-weight:700;letter-spacing:-0.3px}
+  .header-sub{font-size:12px;color:var(--muted);margin-top:1px}
+  .btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:#9163f5}
+  .btn-ghost{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+  .btn-ghost:hover{color:var(--text)}
+  .btn-copy{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:6px 12px;font-size:12px;border-radius:6px;cursor:pointer;font-family:inherit;transition:all .15s}
+  .btn-copy:hover{color:var(--accent);border-color:var(--accent)}
+  .btn-copy.copied{color:var(--green);border-color:var(--green)}
+  .main{max-width:900px;margin:0 auto;padding:32px 24px}
+  .steps{display:flex;margin-bottom:28px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .step{flex:1;padding:13px 16px;text-align:center;background:var(--surface);cursor:pointer;border-right:1px solid var(--border);transition:all .15s}
+  .step:last-child{border-right:none}
+  .step.active{background:var(--accent-bg)}
+  .step.done{background:var(--green-bg)}
+  .step-num{width:22px;height:22px;border-radius:50%;background:var(--border);color:var(--muted);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 5px}
+  .step.active .step-num{background:var(--accent);color:#fff}
+  .step.done .step-num{background:var(--green);color:#fff}
+  .step-label{font-size:12px;font-weight:500;color:var(--muted)}
+  .step.active .step-label{color:var(--accent)}
+  .step.done .step-label{color:var(--green)}
+  .panel{display:none}
+  .panel.active{display:block}
+  .form-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+  .form-section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
+  .form-row{margin-bottom:13px}
+  .form-row:last-child{margin-bottom:0}
+  .form-row label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px}
+  .form-row input,.form-row select,.form-row textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:13px;padding:9px 14px;outline:none;transition:border-color .15s}
+  .form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--accent)}
+  .form-row input::placeholder,.form-row textarea::placeholder{color:var(--muted)}
+  .form-row textarea{resize:vertical;min-height:70px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+  @media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+  .toggle-grid{display:grid;gap:8px}
+  .toggle-grid.cols2{grid-template-columns:1fr 1fr}
+  .toggle-grid.cols3{grid-template-columns:1fr 1fr 1fr}
+  .toggle-btn{padding:11px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;text-align:center;transition:all .15s;user-select:none}
+  .toggle-btn:hover{border-color:#444;color:var(--text)}
+  .toggle-btn.on{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+  .module-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+  .module-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .15s;user-select:none}
+  .module-item.on{background:var(--accent-bg);border-color:var(--accent)}
+  .module-item .mod-icon{font-size:14px;flex-shrink:0}
+  .module-item .mod-label{font-size:12px;font-weight:500;color:var(--muted)}
+  .module-item.on .mod-label{color:var(--accent)}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+  .output-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:18px;overflow:hidden}
+  .output-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
+  .output-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .output-body{padding:20px;font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap;font-family:inherit;min-height:100px}
+  .output-body.loading{color:var(--muted);font-style:italic}
+  .checklist-box{background:var(--green-bg);border:1px solid rgba(34,197,94,.2);border-radius:var(--radius);padding:16px 20px;margin-bottom:18px}
+  .checklist-box strong{color:var(--green);font-size:13px;display:block;margin-bottom:8px}
+  .checklist-box ul{list-style:none}
+  .checklist-box ul li{font-size:12px;color:var(--text);padding:3px 0;display:flex;align-items:center;gap:8px}
+  .checklist-box ul li::before{content:"✓";color:var(--green);font-weight:700}
+  .success-box{background:var(--accent-bg);border:1px solid rgba(167,139,250,.25);border-radius:var(--radius);padding:16px 20px;display:flex;gap:12px;align-items:center;margin-bottom:20px}
+  .success-box strong{color:var(--accent);display:block;font-size:13px}
+  .success-box span{color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-icon">🎓</div>
+    <div>
+      <div class="header-title">Kit Formation Mews</div>
+      <div class="header-sub">Générateur de plan + script d'animation — Myriam · Mews</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button class="toggle-btn" id="langFR" onclick="setUILang('fr')" style="padding:6px 12px;font-size:12px;">🇫🇷 FR</button>
+    <button class="toggle-btn on" id="langEN" onclick="setUILang('en')" style="padding:6px 12px;font-size:12px;">🇬🇧 EN</button>
+    <button class="btn btn-ghost" id="btnReset" onclick="resetAll()">↺ New client</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STEPS -->
+  <div class="steps">
+    <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">Client</div></div>
+    <div class="step" id="step2"><div class="step-num">2</div><div class="step-label">Formation</div></div>
+    <div class="step" id="step3"><div class="step-num">3</div><div class="step-label">Génération</div></div>
+  </div>
+
+  <!-- ── STEP 1 ── -->
+  <div class="panel active" id="panel1">
+    <div class="form-section">
+      <div class="form-section-title" data-t="s1title">🏨 Infos client</div>
+      <div class="form-grid">
+        <div class="form-row"><label data-t="hotel">Nom de l'établissement</label><input type="text" id="hotelName" placeholder="ex. Hôtel Frochot Montmartre"/></div>
+        <div class="form-row"><label data-t="city">Ville</label><input type="text" id="hotelCity" placeholder="ex. Paris"/></div>
+        <div class="form-row"><label data-t="contact">Contact principal</label><input type="text" id="contactName" placeholder="ex. Sophie Dubois"/></div>
+        <div class="form-row"><label>Date de la formation</label><input type="date" id="trainingDate"/></div>
+        <div class="form-row"><label data-t="nb">Nombre de participants</label><input type="number" id="nbParticipants" min="1" max="50" placeholder="ex. 5"/></div>
+      </div>
+      <div class="form-row" style="margin-top:13px"><label data-t="notes">Notes spécifiques (optionnel)</label><textarea id="clientNotes" placeholder="ex. Équipe peu à l'aise avec les outils digitaux, priorité sur les paiements..."></textarea></div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title" data-t="s1aud">👥 Audience(s)</div>
+      <div class="form-row"><label data-t="audQ">Qui participe ?</label>
+        <div class="toggle-grid cols2">
+          <div class="toggle-btn on" id="audReception" onclick="toggleAud('Reception')">🛎️ Réception / Front desk</div>
+          <div class="toggle-btn on" id="audDirection" onclick="toggleAud('Direction')">📊 Direction</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <span></span>
+      <button class="btn btn-primary" data-t="next1" onclick="goTo(2)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2 ── -->
+  <div class="panel" id="panel2">
+
+    <div class="form-section">
+      <div class="form-section-title" data-t="s2profile">🎯 Profil du client</div>
+      <div class="form-row"><label data-t="profQ">Niveau estimé</label>
+        <div class="toggle-grid cols2">
+          <div class="toggle-btn on" id="profTop" onclick="selectOne('prof',['Top','Standard','Slow','Needs'],'Top')">🚀 Top performer</div>
+          <div class="toggle-btn" id="profStandard" onclick="selectOne('prof',['Top','Standard','Slow','Needs'],'Standard')">✅ Standard</div>
+          <div class="toggle-btn" id="profSlow" onclick="selectOne('prof',['Top','Standard','Slow','Needs'],'Slow')">🐢 Pas tech-savvy</div>
+          <div class="toggle-btn" id="profNeeds" onclick="selectOne('prof',['Top','Standard','Slow','Needs'],'Needs')">🔁 Besoin de renforcement</div>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:12px"><label data-t="muQ">Taux MU completion</label>
+        <div class="toggle-grid cols3">
+          <div class="toggle-btn" id="mu100" onclick="selectOne('mu',['100','50','0'],'100')">💯 100% — tout fait</div>
+          <div class="toggle-btn on" id="mu50" onclick="selectOne('mu',['100','50','0'],'50')">📚 50–80%</div>
+          <div class="toggle-btn" id="mu0" onclick="selectOne('mu',['100','50','0'],'0')">⚠️ &lt;50%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title" data-t="s2mods">⚙️ Modules à couvrir</div>
+      <div class="module-grid" id="modGrid">
+        <div class="module-item on" id="mod_navigation" onclick="toggleMod('navigation')"><span class="mod-icon">🖥️</span><span class="mod-label">Navigation & interface Mews</span></div>
+        <div class="module-item on" id="mod_reservations" onclick="toggleMod('reservations')"><span class="mod-icon">📅</span><span class="mod-label">Réservations & disponibilité</span></div>
+        <div class="module-item on" id="mod_checkin" onclick="toggleMod('checkin')"><span class="mod-icon">🚪</span><span class="mod-label">Check-in / Check-out</span></div>
+        <div class="module-item on" id="mod_paiements" onclick="toggleMod('paiements')"><span class="mod-icon">💳</span><span class="mod-label">Paiements & terminal</span></div>
+        <div class="module-item on" id="mod_facturation" onclick="toggleMod('facturation')"><span class="mod-icon">🧾</span><span class="mod-label">Facturation & clôture</span></div>
+        <div class="module-item" id="mod_rapports" onclick="toggleMod('rapports')"><span class="mod-icon">📊</span><span class="mod-label">Rapports (direction)</span></div>
+        <div class="module-item" id="mod_pos" onclick="toggleMod('pos')"><span class="mod-icon">🍽️</span><span class="mod-label">Mews POS</span></div>
+        <div class="module-item on" id="mod_support" onclick="toggleMod('support')"><span class="mod-icon">🆘</span><span class="mod-label">Support & ressources</span></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title" data-t="s2format">🕐 Format</div>
+      <div class="form-grid">
+        <div class="form-row"><label data-t="startLbl">Heure de début</label><input type="time" id="startTime" value="09:00"/></div>
+        <div class="form-row"><label data-t="daysLbl">Nombre de jours</label>
+          <select id="nbDays" onchange="updateDayFields()">
+            <option value="1" selected>1 jour</option>
+            <option value="2">2 jours</option>
+            <option value="3">3 jours</option>
+            <option value="4">4 jours</option>
+          </select>
+        </div>
+        <div class="form-row"><label data-t="hpdLbl">Heures par jour</label>
+          <select id="hoursPerDay">
+            <option value="4">4h (demi-journée)</option>
+            <option value="7" selected>7h (journée complète)</option>
+            <option value="8">8h</option>
+          </select>
+        </div>
+        <div class="form-row"><label data-t="locLbl">Lieu</label>
+          <select id="location">
+            <option value="onsite">Onsite — chez le client</option>
+            <option value="remote">Remote — visio</option>
+          </select>
+        </div>
+        <div class="form-row"><label data-t="langLbl">Langue</label>
+          <select id="trainingLang">
+            <option value="fr">🇫🇷 Français</option>
+            <option value="en">🇬🇧 English</option>
+          </select>
+        </div>
+      </div>
+      <div id="dayDatesBlock" style="display:none;margin-top:14px;">
+        <div class="form-row"><label data-t="dayDatesLbl">Dates des journées</label>
+          <div id="dayDateFields" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" data-t="back2" onclick="goTo(1)">← Retour</button>
+      <button class="btn btn-primary" data-t="generate" onclick="generateKit()">✨ Générer le kit</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 3 ── -->
+  <div class="panel" id="panel3">
+    <div class="success-box">
+      <span style="font-size:20px">🎓</span>
+      <div><strong id="successTitle">Kit généré</strong><span>Relis avant d'utiliser — ajuste si besoin.</span></div>
+    </div>
+    <div class="checklist-box"><strong data-t="checklistTitle">✅ Checklist avant la formation</strong><ul id="checklistItems"></ul></div>
+    <!-- JSON OUTPUT PANEL -->
+    <div id="jsonPanel" style="display:none;margin-bottom:18px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface2);">
+          <div style="font-size:13px;font-weight:600;" data-t="jsonTitle">📋 Colle ce JSON dans Claude avec <code style="background:var(--bg);padding:2px 8px;border-radius:4px;color:var(--accent);font-size:12px;">kit [JSON]</code></div>
+          <button class="btn-copy" id="cpyJSON" onclick="copyJSON()">Copier JSON</button>
+        </div>
+        <div id="multiDayNote" style="display:none;margin:12px 20px 0;padding:10px 14px;background:var(--orange-bg);border:1px solid rgba(249,115,22,0.2);border-radius:var(--radius-sm);font-size:12px;color:var(--orange);"></div>
+        <textarea id="jsonTextarea" readonly style="width:100%;min-height:200px;background:var(--surface2);border:none;border-top:1px solid var(--border);color:var(--text);font-family:monospace;font-size:12px;padding:16px 20px;outline:none;resize:vertical;line-height:1.6;"></textarea>
+      </div>
+    </div>
+
+    <div class="output-block" id="blockReception">
+      <div class="output-header"><div class="output-title" data-t="planR">🛎️ Plan — Réception</div><button class="btn-copy" id="cpyR" onclick="copyEl('outR','cpyR')">Copier</button></div>
+      <div class="output-body" id="outR"></div>
+    </div>
+    <div class="output-block" id="blockDirection">
+      <div class="output-header"><div class="output-title" data-t="planD">📊 Plan — Direction</div><button class="btn-copy" id="cpyD" onclick="copyEl('outD','cpyD')">Copier</button></div>
+      <div class="output-body" id="outD"></div>
+    </div>
+    <div class="output-block">
+      <div class="output-header"><div class="output-title" data-t="scriptTitle">🎙️ Script d'animation</div><button class="btn-copy" id="cpyS" onclick="copyEl('outS','cpyS')">Copier</button></div>
+      <div class="output-body" id="outS"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" data-t="modify" onclick="goTo(2)">← Modifier</button>
+      <button class="btn btn-primary" data-t="newClient" onclick="resetAll()">↺ Nouveau client</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+var S = {
+  aud: { Reception: true, Direction: true },
+  modules: { navigation:true, reservations:true, checkin:true, paiements:true, facturation:true, rapports:false, pos:false, support:true },
+  profile: 'Top',
+  mu: '50',
+  step: 1
+};
+
+// ── TRANSLATIONS ─────────────────────────────────────────────────────────────
+var UI_LANG = 'en';
+
+var T = {
+  fr: {
+    reset: '↺ Nouveau client', title: 'Kit Formation Mews', sub: 'Générateur de plan + script d'animation — Myriam · Mews',
+    step1: 'Client', step2: 'Formation', step3: 'Génération',
+    s1title: '🏨 Infos client', hotel: 'Nom de l'établissement', hotelPh: 'ex. Hôtel Frochot Montmartre',
+    city: 'Ville', cityPh: 'ex. Paris', contact: 'Contact principal', contactPh: 'ex. Sophie Dubois',
+    nb: 'Nombre de participants', nbPh: 'ex. 5', notes: 'Notes spécifiques (optionnel)', notesPh: 'ex. Équipe peu à l'aise avec les outils digitaux...',
+    s1aud: '👥 Audience(s)', audQ: 'Qui participe ?', audR: '🛎️ Réception / Front desk', audD: '📊 Direction',
+    next: 'Suivant →', back: '← Retour',
+    s2profile: '🎯 Profil du client', profQ: 'Niveau estimé',
+    profTop: '🚀 Top performer', profStd: '✅ Standard', profSlow: '🐢 Pas tech-savvy', profNeeds: '🔁 Besoin de renforcement',
+    muQ: 'Taux MU completion', mu100: '💯 100% — tout fait', mu50: '📚 50–80%', mu0: '⚠️ <50%',
+    s2mods: '⚙️ Modules à couvrir', modsQ: 'Sélectionne les modules actifs',
+    s2format: '🕐 Format', startLbl: 'Heure de début', daysLbl: 'Nombre de jours',
+    hpdLbl: 'Heures par jour', locLbl: 'Lieu', langLbl: 'Langue de la formation',
+    loc1: 'Onsite — chez le client', loc2: 'Remote — visio',
+    lang1: '🇫🇷 Français', lang2: '🇬🇧 English',
+    hpd1: '4h (demi-journée)', hpd2: '7h (journée complète)', hpd3: '8h',
+    days1:'1 jour',days2:'2 jours',days3:'3 jours',days4:'4 jours',
+    dayDatesLbl: 'Dates des journées', dayPrefix: 'Jour ',
+    generate: '✨ Générer le kit',
+    s3success: 'JSON prêt', s3sub: 'Copie le JSON → colle dans Claude avec "kit [JSON]"',
+    jsonTitle: '📋 Colle ce JSON dans Claude avec',
+    copyJSON: 'Copier JSON', copied: '✓ Copié',
+    checklistTitle: '✅ Checklist avant la formation',
+    planR: '🛎️ Plan — Réception', planD: '📊 Plan — Direction', script: '🎙️ Script d'animation',
+    copy: 'Copier', modifyBtn: '← Retour', newClient: '↺ Nouveau client',
+    multiDay: ' jours) — Claude proposera la répartition par jour et demandera ta validation avant de générer les plans.'
+  },
+  en: {
+    reset: '↺ New client', title: 'Mews Training Kit', sub: 'Training plan + animation script generator — Myriam · Mews',
+    step1: 'Client', step2: 'Training', step3: 'Generate',
+    s1title: '🏨 Client info', hotel: 'Property name', hotelPh: 'e.g. The Grand Hotel London',
+    city: 'City', cityPh: 'e.g. London', contact: 'Primary contact', contactPh: 'e.g. John Smith',
+    nb: 'Number of participants', nbPh: 'e.g. 5', notes: 'Specific notes (optional)', notesPh: 'e.g. Team not comfortable with digital tools...',
+    s1aud: '👥 Audience(s)', audQ: 'Who is attending?', audR: '🛎️ Reception / Front desk', audD: '📊 Management',
+    next: 'Next →', back: '← Back',
+    s2profile: '🎯 Client profile', profQ: 'Estimated level',
+    profTop: '🚀 Top performer', profStd: '✅ Standard', profSlow: '🐢 Not tech-savvy', profNeeds: '🔁 Needs reinforcement',
+    muQ: 'MU completion rate', mu100: '💯 100% — fully done', mu50: '📚 50–80%', mu0: '⚠️ <50%',
+    s2mods: '⚙️ Modules to cover', modsQ: 'Select active modules',
+    s2format: '🕐 Format', startLbl: 'Start time', daysLbl: 'Number of days',
+    hpdLbl: 'Hours per day', locLbl: 'Location', langLbl: 'Training language',
+    loc1: 'On-site — at the client', loc2: 'Remote — video call',
+    lang1: '🇫🇷 French', lang2: '🇬🇧 English',
+    hpd1: '4h (half day)', hpd2: '7h (full day)', hpd3: '8h',
+    days1:'1 day',days2:'2 days',days3:'3 days',days4:'4 days',
+    dayDatesLbl: 'Day dates', dayPrefix: 'Day ',
+    generate: '✨ Generate kit',
+    s3success: 'JSON ready', s3sub: 'Copy the JSON → paste into Claude with "kit [JSON]"',
+    jsonTitle: '📋 Paste this JSON into Claude with',
+    copyJSON: 'Copy JSON', copied: '✓ Copied',
+    checklistTitle: '✅ Pre-training checklist',
+    planR: '🛎️ Plan — Reception', planD: '📊 Plan — Management', script: '🎙️ Animation script',
+    copy: 'Copy', modifyBtn: '← Back', newClient: '↺ New client',
+    multiDay: ' days) — Claude will propose the day-by-day module split and ask for your validation before generating.'
+  }
+};
+
+function setUILang(lang) {
+  UI_LANG = lang;
+  var t = T[lang];
+  if (!t) return;
+
+  function set(sel, val, attr) {
+    var el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+    if (!el) return;
+    if (attr === 'placeholder') el.placeholder = val;
+    else if (attr === 'html') el.innerHTML = val;
+    else el.textContent = val;
+  }
+
+  // Header
+  set('.header-title', t.title);
+  set('.header-sub', t.sub);
+  set('#btnReset', t.reset);
+  // Steps
+  set('#step1 .step-label', t.step1);
+  set('#step2 .step-label', t.step2);
+  set('#step3 .step-label', t.step3);
+  // Step 1
+  set('[data-t="s1title"]', t.s1title);
+  set('[data-t="hotel"]', t.hotel);
+  set('#hotelName', t.hotelPh, 'placeholder');
+  set('[data-t="city"]', t.city);
+  set('#hotelCity', t.cityPh, 'placeholder');
+  set('[data-t="contact"]', t.contact);
+  set('#contactName', t.contactPh, 'placeholder');
+  set('[data-t="nb"]', t.nb);
+  set('#nbParticipants', t.nbPh, 'placeholder');
+  set('[data-t="notes"]', t.notes);
+  set('#clientNotes', t.notesPh, 'placeholder');
+  set('[data-t="s1aud"]', t.s1aud);
+  set('[data-t="audQ"]', t.audQ);
+  set('#audReception', t.audR);
+  set('#audDirection', t.audD);
+  set('[data-t="next1"]', t.next);
+  // Step 2
+  set('[data-t="s2profile"]', t.s2profile);
+  set('[data-t="profQ"]', t.profQ);
+  set('#profTop', t.profTop);
+  set('#profStandard', t.profStd);
+  set('#profSlow', t.profSlow);
+  set('#profNeeds', t.profNeeds);
+  set('[data-t="muQ"]', t.muQ);
+  set('#mu100', t.mu100);
+  set('#mu50', t.mu50);
+  set('#mu0', t.mu0, 'html');
+  set('[data-t="s2mods"]', t.s2mods);
+  set('[data-t="s2format"]', t.s2format);
+  set('[data-t="startLbl"]', t.startLbl);
+  set('[data-t="daysLbl"]', t.daysLbl);
+  set('[data-t="hpdLbl"]', t.hpdLbl);
+  set('[data-t="locLbl"]', t.locLbl);
+  set('[data-t="langLbl"]', t.langLbl);
+  set('[data-t="dayDatesLbl"]', t.dayDatesLbl);
+  set('[data-t="generate"]', t.generate);
+  set('[data-t="back2"]', t.back);
+  // Location options
+  var loc = document.getElementById('location');
+  if (loc && loc.options.length >= 2) { loc.options[0].text = t.loc1; loc.options[1].text = t.loc2; }
+  // Hours options
+  var hpd = document.getElementById('hoursPerDay');
+  if (hpd && hpd.options.length >= 3) { hpd.options[0].text = t.hpd1; hpd.options[1].text = t.hpd2; hpd.options[2].text = t.hpd3; }
+  // Days options
+  var nd = document.getElementById('nbDays');
+  if (nd && nd.options.length >= 4) { nd.options[0].text = t.days1; nd.options[1].text = t.days2; nd.options[2].text = t.days3; nd.options[3].text = t.days4; }
+  // Lang options
+  var tl = document.getElementById('trainingLang');
+  if (tl && tl.options.length >= 2) { tl.options[0].text = t.lang1; tl.options[1].text = t.lang2; }
+  // Step 3
+  set('[data-t="jsonTitle"]', t.jsonTitle);
+  set('#cpyJSON', t.copyJSON);
+  set('[data-t="checklistTitle"]', t.checklistTitle);
+  set('[data-t="planR"]', t.planR);
+  set('[data-t="planD"]', t.planD);
+  set('[data-t="scriptTitle"]', t.script);
+  set('#cpyR', t.copy);
+  set('#cpyD', t.copy);
+  set('#cpyS', t.copy);
+  set('[data-t="modify"]', t.modifyBtn);
+  set('[data-t="newClient"]', t.newClient);
+  // Module labels
+  var modLabels = {
+    fr: { navigation:'Navigation & interface Mews', reservations:'Réservations & disponibilité', checkin:'Check-in / Check-out', paiements:'Paiements & terminal', facturation:'Facturation & clôture', rapports:'Rapports & analytics', pos:'Mews POS', support:'Support & ressources' },
+    en: { navigation:'Navigation & Mews interface', reservations:'Reservations & availability', checkin:'Check-in / Check-out', paiements:'Payments & terminal', facturation:'Billing & daily close', rapports:'Reports & analytics', pos:'Mews POS', support:'Support & resources' }
+  };
+  Object.keys(modLabels[lang]).forEach(function(k) {
+    var el = document.querySelector('#mod_' + k + ' .mod-label');
+    if (el) el.textContent = modLabels[lang][k];
+  });
+  MODULE_LABELS = modLabels[lang];
+  // Day prefix
+  document.querySelectorAll('.day-prefix').forEach(function(el, i){ el.textContent = t.dayPrefix + (i+1); });
+  // Lang toggle buttons
+  var btnFR = document.getElementById('langFR');
+  var btnEN = document.getElementById('langEN');
+  if (btnFR) btnFR.classList.toggle('on', lang==='fr');
+  if (btnEN) btnEN.classList.toggle('on', lang==='en');
+}
+
+// ── DAY FIELDS ───────────────────────────────────────────────────────────────
+function updateDayFields() {
+  var n = parseInt(document.getElementById('nbDays').value);
+  var block = document.getElementById('dayDatesBlock');
+  var container = document.getElementById('dayDateFields');
+  block.style.display = n > 1 ? 'block' : 'none';
+  container.innerHTML = '';
+  for (var i = 1; i <= n; i++) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;';
+    row.innerHTML = '<label class="day-prefix" style="font-size:12px;color:var(--muted);white-space:nowrap;min-width:60px;">' + (T[UI_LANG] ? T[UI_LANG].dayPrefix : 'Jour ') + i + '</label>' +
+      '<input type="date" id="date_day' + i + '" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:13px;padding:8px 12px;outline:none;" />';
+    container.appendChild(row);
+  }
+}
+
+// ── NAVIGATION ──────────────────────────────────────────────────────────────
+function goTo(n) {
+  S.step = n;
+  document.querySelectorAll('.panel').forEach(function(p,i){ p.classList.toggle('active', i+1===n); });
+  document.querySelectorAll('.step').forEach(function(s,i){
+    s.classList.remove('active','done');
+    if(i+1 < n) s.classList.add('done');
+    if(i+1 === n) s.classList.add('active');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── TOGGLES ──────────────────────────────────────────────────────────────────
+function toggleAud(key) {
+  S.aud[key] = !S.aud[key];
+  document.getElementById('aud'+key).classList.toggle('on', S.aud[key]);
+}
+
+function selectOne(prefix, keys, chosen) {
+  if(prefix==='prof') S.profile = chosen;
+  else if(prefix==='mu') S.mu = chosen;
+  keys.forEach(function(k){
+    document.getElementById(prefix+k).classList.toggle('on', k===chosen);
+  });
+}
+
+function toggleMod(key) {
+  S.modules[key] = !S.modules[key];
+  document.getElementById('mod_'+key).classList.toggle('on', S.modules[key]);
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function fmtDate(d) {
+  if(!d) return '[date]';
+  return new Date(d+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+function activeModules() {
+  return Object.keys(S.modules).filter(function(k){ return S.modules[k]; });
+}
+
+var MODULE_LABELS = {
+  navigation:'Navigation & interface Mews', reservations:'Réservations & disponibilité',
+  checkin:'Check-in / Check-out', paiements:'Paiements & terminal',
+  facturation:'Facturation & clôture', rapports:'Rapports & analytics',
+  pos:'Mews POS', support:'Support & ressources post-formation'
+};
+
+var QC = {
+  navigation:["Comment créer des utilisateurs et gérer les droits d'accès ?","Comment limiter ce que la réception peut faire (remises, annulation de facture) ?","Comment suivre qui a fait quelle action (audit trail) ?"],
+  reservations:["Comment lire et utiliser le planning (calendar / timeline) ?","Comment créer une réservation manuellement ?","Comment faire un changement de chambre pendant le séjour ?","Comment gérer les no-show et les annulations ?","Où voir l'historique des modifications sur une réservation ?"],
+  checkin:["Comment faire le check-in/check-out dans Mews ?","Comment configurer early check-in / late check-out ?","Comment charger un service (petit-déj, parking) sur la chambre ?","Comment séparer une facture (partie entreprise, partie client) ?","Comment corriger une facture déjà émise (avoir, annulation) ?"],
+  paiements:["Comment fonctionne l'auto-chargement de la carte (autorisation, prélèvement) ?","Comment enregistrer une carte manuellement ?","Que se passe-t-il si un paiement est refusé ?","Comment rembourser un client ?","Comment gérer les cautions (deposit / guarantee) ?"],
+  facturation:["Comment gérer les paiements en cash / carte / virement ?","Comment créer une facture proforma / un devis ?","Comment gérer le city tax pour les exemptés ?","Comment exporter les données vers mon logiciel comptable ?"],
+  rapports:["Quels rapports pour la comptabilité quotidienne (revenus, paiements, taxes) ?","Comment obtenir un rapport par compte comptable / type de revenu ?","Où trouver le rapport de performance (occupation, RevPAR, ADR) ?","Comment vérifier que les chiffres PMS = chiffres paiement ?"],
+  pos:["Comment connecter le POS restaurant à Mews ?","Comment charger un service POS sur une réservation ?"],
+  support:["Comment fonctionne le check-in en ligne / guest portal ?","Quels emails automatiques sont envoyés aux clients ?","Comment connecter le booking engine du site officiel à Mews ?","Comment synchroniser les tarifs et disponibilités avec les OTA ?"]
+};
+
+function getQuestions(mods) {
+  var q = [];
+  mods.forEach(function(m){ if(QC[m]) q = q.concat(QC[m]); });
+  return q.slice(0,12).map(function(x,i){ return (i+1)+'. '+x; }).join('\n');
+}
+
+var PROFILE_DESC = {
+  Top:'Client autonome et avancé. Rythme rapide, propose raccourcis et fonctions avancées, moins d\'exercices guidés, plus d\'échanges techniques.',
+  Standard:'Bon niveau général. Rythme standard. Équilibre démos et pratique. Questions ouvertes pour vérifier la compréhension.',
+  Slow:'Client peu à l\'aise avec les outils digitaux. Ralentis le rythme, répète les étapes clés, favorise les exercices pas à pas. Évite le jargon. Beaucoup de réassurance.',
+  Needs:'Client qui a besoin de renforcement. Insiste sur les points bloquants, prévois des exercices supplémentaires, termine par un récap consolidé.'
+};
+var MU_DESC = {
+  '100':'100% MU complété — bases théoriques acquises. Focus sur la pratique et les cas concrets.',
+  '50':'50–80% MU — bonnes bases partielles. Rappelle les points non couverts avant de pratiquer.',
+  '0':'Moins de 50% MU — partir de zéro sur les fondamentaux. Prévoir plus de temps sur la navigation de base.'
+};
+
+// ── GENERATE ──────────────────────────────────────────────────────────────────
+async function generateKit() {
+  var hotel = document.getElementById('hotelName').value.trim() || '[Établissement]';
+  var city = document.getElementById('hotelCity').value.trim();
+  var contact = document.getElementById('contactName').value.trim() || '[Contact]';
+  var nb = document.getElementById('nbParticipants').value.trim();
+  var notes = document.getElementById('clientNotes').value.trim();
+  var start = document.getElementById('startTime').value || '09:00';
+  var nbDays = parseInt(document.getElementById('nbDays').value);
+  var hoursPerDay = parseInt(document.getElementById('hoursPerDay').value);
+  var loc = document.getElementById('location').value;
+  var dayDates = [];
+  for (var d = 1; d <= nbDays; d++) {
+    var el = document.getElementById('date_day' + d);
+    if (el && el.value) dayDates.push(fmtDate(el.value));
+    else dayDates.push('Jour ' + d);
+  }
+  var lang = document.getElementById('trainingLang').value;
+  var isFR = lang === 'fr';
+  var mods = activeModules();
+  var modsStr = mods.map(function(m){ return '- '+MODULE_LABELS[m]; }).join('\n');
+  var qStr = getQuestions(mods);
+  var locLabel = loc==='onsite' ? ('Onsite'+(city?' — '+city:'')) : 'Remote — visio';
+  var durLabel = nbDays + ' jour' + (nbDays > 1 ? 's' : '') + ' × ' + hoursPerDay + 'h';
+
+  goTo(3);
+
+  // Checklist
+  var cl = ['Accès Mews Operations confirmé pour '+hotel,'Compte démo prêt (environnement test)','Projecteur / écran'+(loc==='remote'?' — partage écran préparé':''),'Liste des participants transmise','Terminal de paiement disponible pour démo live'];
+  if(nb) cl.push('Salle adaptée pour '+nb+' participant'+(parseInt(nb)>1?'s':''));
+  document.getElementById('checklistItems').innerHTML = cl.map(function(c){ return '<li>'+c+'</li>'; }).join('');
+  document.getElementById('successTitle').textContent = 'Kit généré — '+hotel;
+  document.getElementById('blockReception').style.display = S.aud.Reception ? 'block' : 'none';
+  document.getElementById('blockDirection').style.display = S.aud.Direction ? 'block' : 'none';
+
+  var loading = isFR ? 'Génération en cours…' : 'Generating…';
+  if(S.aud.Reception){ document.getElementById('outR').className='output-body loading'; document.getElementById('outR').textContent=loading; }
+  if(S.aud.Direction){ document.getElementById('outD').className='output-body loading'; document.getElementById('outD').textContent=loading; }
+  document.getElementById('outS').className='output-body loading'; document.getElementById('outS').textContent=loading;
+
+  var dayDatesStr = nbDays > 1
+    ? dayDates.map(function(d,i){ return 'Jour '+(i+1)+' : '+d; }).join(' / ')
+    : (dayDates[0] && dayDates[0] !== 'Jour 1' ? dayDates[0] : '[date à préciser]');
+  var ctx = 'Établissement : '+hotel+(city?' — '+city:'')+'\nContact : '+contact+'\nDates : '+dayDatesStr+'\nHeure début : '+start+'\nParticipants : '+(nb||'non précisé')+'\nFormat : '+durLabel+' | '+locLabel+'\nLangue : '+(isFR?'Français':'English')+'\nModules :\n'+modsStr+'\nProfil client : '+S.profile+' — '+PROFILE_DESC[S.profile]+'\nMU completion : '+MU_DESC[S.mu]+(notes?'\nNotes : '+notes:'');
+
+  var planRprompt = 'Tu es Myriam, Senior Customer Onboarding Manager chez Mews.\nGénère un plan de formation RÉCEPTION détaillé.\n\nContexte :\n'+ctx+'\n\nFormat STRICT ('+(isFR?'en français':'in English')+') :\n\nPLAN DE FORMATION — RÉCEPTION\n'+hotel+(city?' · '+city:'')+' | '+fmtDate(date)+'\n\nOBJECTIFS\n[3 objectifs concrets, orientés opérations quotidiennes]\n\nAGENDA\n[Pour chaque module : ⏱ HH:MM — HH:MM | NOM (durée)\n→ Ce qu\'on couvre : [2-3 points]\n→ Exercice pratique : [1 exercice live — adapte selon le nb de participants : '+( nb||'?')+']\n→ Point de vigilance : [1 erreur fréquente]\nInclure pauses.]\n\nQUESTIONS FRÉQUENTES ATTENDUES\n[Intègre les 3 plus pertinentes parmi :\n'+qStr+']\n\nINDICATEURS DE RÉUSSITE\n[3 critères concrets]\n\nAdapte le rythme au profil et au MU indiqués. Ton : direct, orienté praticien.';
+
+  var planDprompt = 'Tu es Myriam, Senior Customer Onboarding Manager chez Mews.\nGénère un plan de formation DIRECTION détaillé.\n\nContexte :\n'+ctx+'\n\nFormat STRICT ('+(isFR?'en français':'in English')+') :\n\nPLAN DE FORMATION — DIRECTION\n'+hotel+(city?' · '+city:'')+' | '+fmtDate(date)+'\n\nOBJECTIFS\n[3 objectifs orientés pilotage et reporting]\n\nAGENDA\n[Pour chaque module direction : ⏱ HH:MM — HH:MM | NOM (durée)\n→ Ce qu\'on couvre : [orienté management]\n→ Démo live : [ce qu\'on montre]\n→ KPI clé : [1-2 métriques Mews]\nInclure pauses.]\n\nQUESTIONS FRÉQUENTES DIRECTION\n[3-4 questions parmi :\n'+qStr+']\n\nINDICATEURS DE RÉUSSITE\n[3 critères orientés pilotage]\n\nAdapte selon profil et MU. Ton : direct, orienté résultats.';
+
+  var scriptPrompt = 'Tu es Myriam, Senior Customer Onboarding Manager chez Mews.\nGénère un script d\'animation complet pour cette formation.\n'+(S.aud.Reception&&S.aud.Direction?'Deux audiences : Réception le matin, Direction l\'après-midi.':S.aud.Reception?'Formation Réception.':'Formation Direction.')+'\n\nContexte :\n'+ctx+'\n\nFormat STRICT ('+(isFR?'en français':'in English')+') :\n\nSCRIPT D\'ANIMATION — '+hotel.toUpperCase()+'\n'+fmtDate(date)+' | '+start+' | '+locLabel+'\n\n━━━ OUVERTURE ━━━\n[Accueil, présentation, objectifs, règles pratiques. 5-7 phrases.]\n\n'+(S.aud.Reception?'━━━ RÉCEPTION — MODULE PAR MODULE ━━━\n[Pour chaque module :\n🎙️ TRANSITION : "[phrase d\'intro]"\n→ DÉMO : [ce qu\'on fait]\n→ EXERCICE : [ce qu\'on demande]\n→ ENCHAÎNEMENT : "[phrase transition]"]\n\n':'')+( S.aud.Direction?'━━━ DIRECTION — MODULE PAR MODULE ━━━\n[Même structure, ton management]\n\n':'')+' ━━━ CLÔTURE ━━━\n[Récap, prochaines étapes, encouragements. 5-7 phrases.]\n\nAdapte le ton au profil : Top=rapide/avancé, Standard=équilibré, Slow=lent/réassurant, Needs=renforcement.\nIntègre 2-3 questions fréquentes naturellement dans le script :\n'+qStr+'\nCe script doit pouvoir être lu à voix haute directement.';
+
+  // Build JSON for Claude chat
+  // Build day schedule suggestion
+  var totalMinutes = nbDays * hoursPerDay * 60;
+  var modDurations = { navigation:20, reservations:50, checkin:50, paiements:50, facturation:50, rapports:45, pos:30, support:30 };
+  var daySchedule = [];
+  var currentDay = 1; var currentMin = 0; var dayMods = [];
+  var maxMinPerDay = hoursPerDay * 60 - 30; // -30 for breaks
+  mods.forEach(function(m) {
+    var d = modDurations[m] || 45;
+    if (currentMin + d > maxMinPerDay && dayMods.length > 0) {
+      daySchedule.push({ day: currentDay, date: dayDates[currentDay-1], modules: dayMods });
+      currentDay++; currentMin = 0; dayMods = [];
+    }
+    dayMods.push(m); currentMin += d;
+  });
+  if (dayMods.length > 0) daySchedule.push({ day: currentDay, date: dayDates[currentDay-1], modules: dayMods });
+
+  var kitData = {
+    hotel: hotel, city: city, contact: contact, date: fmtDate(date),
+    nb: nb||'non précisé', notes: notes||'', start: start,
+    duration: durLabel, location: locLabel, lang: isFR?'Français':'English',
+    modules: mods.map(function(m){ return MODULE_LABELS[m]; }),
+    profile: S.profile, profileDesc: PROFILE_DESC[S.profile],
+    mu: S.mu, muDesc: MU_DESC[S.mu],
+    audiences: Object.keys(S.aud).filter(function(k){ return S.aud[k]; }),
+    questions: getQuestions(mods),
+    nbDays: nbDays,
+    hoursPerDay: hoursPerDay,
+    daySchedule: daySchedule
+  };
+
+  var jsonStr = JSON.stringify(kitData, null, 2);
+
+  // Fast render — inject into dedicated JSON panel
+  var multiDayNote = nbDays > 1 ? '⚠️ Formation multi-jours ('+nbDays+' jours) — Claude proposera la répartition par jour et demandera ta validation avant de générer les plans.' : '';
+
+  document.getElementById('blockReception').style.display = 'none';
+  document.getElementById('blockDirection').style.display = 'none';
+  document.querySelector('#outS').closest('.output-block').style.display = 'none';
+  document.getElementById('jsonPanel').style.display = 'block';
+
+  if (multiDayNote) {
+    document.getElementById('multiDayNote').textContent = multiDayNote;
+    document.getElementById('multiDayNote').style.display = 'block';
+  } else {
+    document.getElementById('multiDayNote').style.display = 'none';
+  }
+
+  document.getElementById('jsonTextarea').value = jsonStr;
+  document.querySelector('.success-box strong').textContent = '✅ JSON prêt — ' + hotel;
+  document.querySelector('.success-box span').textContent = 'Copie le JSON → colle dans Claude avec "kit [JSON]"';
+}
+
+// ── COPY ──────────────────────────────────────────────────────────────────────
+function copyJSON() {
+  var text = document.getElementById('jsonTextarea').value;
+  navigator.clipboard.writeText(text).then(function(){
+    var b = document.getElementById('cpyJSON');
+    b.textContent = '✓ Copié'; b.classList.add('copied');
+    setTimeout(function(){ b.textContent = 'Copier JSON'; b.classList.remove('copied'); }, 2000);
+  });
+}
+function copyEl(elId, btnId) {
+  navigator.clipboard.writeText(document.getElementById(elId).textContent).then(function(){
+    var b=document.getElementById(btnId); b.textContent='✓ Copié'; b.classList.add('copied');
+    setTimeout(function(){ b.textContent='Copier'; b.classList.remove('copied'); },2000);
+  });
+}
+
+// ── RESET ──────────────────────────────────────────────────────────────────────
+function resetAll() {
+  ['hotelName','hotelCity','contactName','nbParticipants','clientNotes'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('nbDays').value='1';
+  document.getElementById('hoursPerDay').value='7';
+  document.getElementById('dayDatesBlock').style.display='none';
+  document.getElementById('dayDateFields').innerHTML='';
+  S.aud={Reception:true,Direction:true};
+  document.getElementById('audReception').classList.add('on');
+  document.getElementById('audDirection').classList.add('on');
+  S.modules={navigation:true,reservations:true,checkin:true,paiements:true,facturation:true,rapports:false,pos:false,support:true};
+  Object.keys(S.modules).forEach(function(k){ document.getElementById('mod_'+k).classList.toggle('on',S.modules[k]); });
+  S.profile='Top'; S.mu='50';
+  ['Top','Standard','Slow','Needs'].forEach(function(k){ document.getElementById('prof'+k).classList.toggle('on',k==='Top'); });
+  ['100','50','0'].forEach(function(k){ document.getElementById('mu'+k).classList.toggle('on',k==='50'); });
+  goTo(1);
+  setUILang(UI_LANG);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setUILang('en');
+});
+</script>
+</body>
+</html>
