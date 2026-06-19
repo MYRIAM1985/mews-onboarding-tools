@@ -331,77 +331,86 @@ var T = {
 function setUILang(lang) {
   UI_LANG = lang;
   var t = T[lang];
+  if (!t) return;
+
+  function set(sel, val, attr) {
+    var el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+    if (!el) return;
+    if (attr === 'placeholder') el.placeholder = val;
+    else if (attr === 'html') el.innerHTML = val;
+    else el.textContent = val;
+  }
+
   // Header
-  document.getElementById('btnReset').textContent = t.reset;
-  document.querySelector('.header-title').textContent = t.title;
-  document.querySelector('.header-sub').textContent = t.sub;
+  set('.header-title', t.title);
+  set('.header-sub', t.sub);
+  set('#btnReset', t.reset);
   // Steps
-  document.querySelector('#step1 .step-label').textContent = t.step1;
-  document.querySelector('#step2 .step-label').textContent = t.step2;
-  document.querySelector('#step3 .step-label').textContent = t.step3;
+  set('#step1 .step-label', t.step1);
+  set('#step2 .step-label', t.step2);
+  set('#step3 .step-label', t.step3);
   // Step 1
-  document.querySelector('[data-t="s1title"]').textContent = t.s1title;
-  document.querySelector('[data-t="hotel"]').textContent = t.hotel;
-  document.getElementById('hotelName').placeholder = t.hotelPh;
-  document.querySelector('[data-t="city"]').textContent = t.city;
-  document.getElementById('hotelCity').placeholder = t.cityPh;
-  document.querySelector('[data-t="contact"]').textContent = t.contact;
-  document.getElementById('contactName').placeholder = t.contactPh;
-  document.querySelector('[data-t="nb"]').textContent = t.nb;
-  document.getElementById('nbParticipants').placeholder = t.nbPh;
-  document.querySelector('[data-t="notes"]').textContent = t.notes;
-  document.getElementById('clientNotes').placeholder = t.notesPh;
-  document.querySelector('[data-t="s1aud"]').textContent = t.s1aud;
-  document.querySelector('[data-t="audQ"]').textContent = t.audQ;
-  document.getElementById('audReception').textContent = t.audR;
-  document.getElementById('audDirection').textContent = t.audD;
-  document.querySelector('[data-t="next1"]').textContent = t.next;
+  set('[data-t="s1title"]', t.s1title);
+  set('[data-t="hotel"]', t.hotel);
+  set('#hotelName', t.hotelPh, 'placeholder');
+  set('[data-t="city"]', t.city);
+  set('#hotelCity', t.cityPh, 'placeholder');
+  set('[data-t="contact"]', t.contact);
+  set('#contactName', t.contactPh, 'placeholder');
+  set('[data-t="nb"]', t.nb);
+  set('#nbParticipants', t.nbPh, 'placeholder');
+  set('[data-t="notes"]', t.notes);
+  set('#clientNotes', t.notesPh, 'placeholder');
+  set('[data-t="s1aud"]', t.s1aud);
+  set('[data-t="audQ"]', t.audQ);
+  set('#audReception', t.audR);
+  set('#audDirection', t.audD);
+  set('[data-t="next1"]', t.next);
   // Step 2
-  document.querySelector('[data-t="s2profile"]').textContent = t.s2profile;
-  document.querySelector('[data-t="profQ"]').textContent = t.profQ;
-  document.getElementById('profTop').textContent = t.profTop;
-  document.getElementById('profStandard').textContent = t.profStd;
-  document.getElementById('profSlow').textContent = t.profSlow;
-  document.getElementById('profNeeds').textContent = t.profNeeds;
-  document.querySelector('[data-t="muQ"]').textContent = t.muQ;
-  document.getElementById('mu100').textContent = t.mu100;
-  document.getElementById('mu50').textContent = t.mu50;
-  document.getElementById('mu0').innerHTML = t.mu0;
-  document.querySelector('[data-t="s2mods"]').textContent = t.s2mods;
-  document.querySelector('[data-t="modsQ"]').textContent = t.modsQ;
-  document.querySelector('[data-t="s2format"]').textContent = t.s2format;
-  document.querySelector('[data-t="startLbl"]').textContent = t.startLbl;
-  document.querySelector('[data-t="daysLbl"]').textContent = t.daysLbl;
-  document.querySelector('[data-t="hpdLbl"]').textContent = t.hpdLbl;
-  document.querySelector('[data-t="locLbl"]').textContent = t.locLbl;
-  document.querySelector('[data-t="langLbl"]').textContent = t.langLbl;
+  set('[data-t="s2profile"]', t.s2profile);
+  set('[data-t="profQ"]', t.profQ);
+  set('#profTop', t.profTop);
+  set('#profStandard', t.profStd);
+  set('#profSlow', t.profSlow);
+  set('#profNeeds', t.profNeeds);
+  set('[data-t="muQ"]', t.muQ);
+  set('#mu100', t.mu100);
+  set('#mu50', t.mu50);
+  set('#mu0', t.mu0, 'html');
+  set('[data-t="s2mods"]', t.s2mods);
+  set('[data-t="s2format"]', t.s2format);
+  set('[data-t="startLbl"]', t.startLbl);
+  set('[data-t="daysLbl"]', t.daysLbl);
+  set('[data-t="hpdLbl"]', t.hpdLbl);
+  set('[data-t="locLbl"]', t.locLbl);
+  set('[data-t="langLbl"]', t.langLbl);
+  set('[data-t="dayDatesLbl"]', t.dayDatesLbl);
+  set('[data-t="generate"]', t.generate);
+  set('[data-t="back2"]', t.back);
   // Location options
   var loc = document.getElementById('location');
-  loc.options[0].text = t.loc1; loc.options[1].text = t.loc2;
+  if (loc && loc.options.length >= 2) { loc.options[0].text = t.loc1; loc.options[1].text = t.loc2; }
   // Hours options
   var hpd = document.getElementById('hoursPerDay');
-  hpd.options[0].text = t.hpd1; hpd.options[1].text = t.hpd2; hpd.options[2].text = t.hpd3;
+  if (hpd && hpd.options.length >= 3) { hpd.options[0].text = t.hpd1; hpd.options[1].text = t.hpd2; hpd.options[2].text = t.hpd3; }
   // Days options
   var nd = document.getElementById('nbDays');
-  nd.options[0].text = t.days1; nd.options[1].text = t.days2; nd.options[2].text = t.days3; nd.options[3].text = t.days4;
+  if (nd && nd.options.length >= 4) { nd.options[0].text = t.days1; nd.options[1].text = t.days2; nd.options[2].text = t.days3; nd.options[3].text = t.days4; }
   // Lang options
   var tl = document.getElementById('trainingLang');
-  tl.options[0].text = t.lang1; tl.options[1].text = t.lang2;
-  document.querySelector('[data-t="dayDatesLbl"]').textContent = t.dayDatesLbl;
-  document.querySelector('[data-t="generate"]').textContent = t.generate;
-  document.querySelector('[data-t="back2"]').textContent = t.back;
+  if (tl && tl.options.length >= 2) { tl.options[0].text = t.lang1; tl.options[1].text = t.lang2; }
   // Step 3
-  document.querySelector('[data-t="jsonTitle"]').textContent = t.jsonTitle;
-  document.getElementById('cpyJSON').textContent = t.copyJSON;
-  document.querySelector('[data-t="checklistTitle"]').textContent = t.checklistTitle;
-  document.querySelector('[data-t="planR"]').textContent = t.planR;
-  document.querySelector('[data-t="planD"]').textContent = t.planD;
-  document.querySelector('[data-t="scriptTitle"]').textContent = t.script;
-  document.getElementById('cpyR').textContent = t.copy;
-  document.getElementById('cpyD').textContent = t.copy;
-  document.getElementById('cpyS').textContent = t.copy;
-  document.querySelector('[data-t="modify"]').textContent = t.modifyBtn;
-  document.querySelector('[data-t="newClient"]').textContent = t.newClient;
+  set('[data-t="jsonTitle"]', t.jsonTitle);
+  set('#cpyJSON', t.copyJSON);
+  set('[data-t="checklistTitle"]', t.checklistTitle);
+  set('[data-t="planR"]', t.planR);
+  set('[data-t="planD"]', t.planD);
+  set('[data-t="scriptTitle"]', t.script);
+  set('#cpyR', t.copy);
+  set('#cpyD', t.copy);
+  set('#cpyS', t.copy);
+  set('[data-t="modify"]', t.modifyBtn);
+  set('[data-t="newClient"]', t.newClient);
   // Module labels
   var modLabels = {
     fr: { navigation:'Navigation & interface Mews', reservations:'Réservations & disponibilité', checkin:'Check-in / Check-out', paiements:'Paiements & terminal', facturation:'Facturation & clôture', rapports:'Rapports & analytics', pos:'Mews POS', support:'Support & ressources' },
@@ -411,13 +420,14 @@ function setUILang(lang) {
     var el = document.querySelector('#mod_' + k + ' .mod-label');
     if (el) el.textContent = modLabels[lang][k];
   });
-  // Update MODULE_LABELS used in JSON generation
   MODULE_LABELS = modLabels[lang];
-  // Lang toggle buttons
-  document.getElementById('langFR').classList.toggle('on', lang==='fr');
-  document.getElementById('langEN').classList.toggle('on', lang==='en');
-  // Update day fields prefix
+  // Day prefix
   document.querySelectorAll('.day-prefix').forEach(function(el, i){ el.textContent = t.dayPrefix + (i+1); });
+  // Lang toggle buttons
+  var btnFR = document.getElementById('langFR');
+  var btnEN = document.getElementById('langEN');
+  if (btnFR) btnFR.classList.toggle('on', lang==='fr');
+  if (btnEN) btnEN.classList.toggle('on', lang==='en');
 }
 
 // ── DAY FIELDS ───────────────────────────────────────────────────────────────
@@ -651,6 +661,10 @@ function resetAll() {
   goTo(1);
   setUILang(UI_LANG);
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  setUILang('en');
+});
 </script>
 </body>
 </html>
